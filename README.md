@@ -2,7 +2,7 @@
 
 DoorDash CLI (`dd-cli`) is a terminal tool for ordering from DoorDash — search restaurants and stores, browse menus, build a cart, reorder a past order, and preview or check out — all from the command line. It's built to be driven directly by a human, or called by AI agents with shell access (Claude Code, Cursor, Codex, etc.) so they can complete ordering tasks on your behalf.
 
-> Invite-only. If you received this link without an invite, ask the person who shared it before using it.
+> Waitlist-only. Full functionality requires an approved account.
 
 Currently supported: **macOS, Apple Silicon (M1/M2/M3/M4)**.
 
