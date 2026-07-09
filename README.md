@@ -8,7 +8,7 @@ Currently supported: **macOS, Apple Silicon (M1/M2/M3/M4)**.
 
 ## Download
 
-1. Go to the [Releases page](https://github.com/doordash/dd-cli/releases) and open the latest release.
+1. Go to the [Releases page](https://github.com/doordash-oss/doordash-cli/releases) and open the latest release.
 2. Download the `dd-cli-v<version>-darwin-arm64.tar.gz` asset.
 3. Use the SHA256 checksum published on that release to verify the download.
 4. Extract the tar.gz and follow the instructions in the `quickstart.txt`.
