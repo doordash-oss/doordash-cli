@@ -1,0 +1,97 @@
+DoorDash CLI for Linux
+=======================
+
+This is a Linux rebuild of the official macOS ARM64 release. It keeps the
+release's architecture-neutral Python application bytecode and replaces the
+macOS interpreter, bootloader, TLS integration, and keychain backend with
+Linux equivalents.
+
+Requirements
+------------
+
+- 64-bit glibc 2.17+ Linux (x86_64 or aarch64, matching the archive name)
+- Either a desktop Secret Service keychain, such as GNOME Keyring, unlocked in
+  the current login session, or an installed and authenticated 1Password CLI
+- An approved DoorDash CLI account
+
+Install
+-------
+
+  bash install.sh
+  export PATH="$HOME/.local/bin:$PATH"
+  dd-cli --version
+  dd-cli login
+
+The login command opens a browser and stores OAuth credentials in the Linux
+desktop keychain. There is deliberately no plaintext credential fallback.
+
+If dd-cli reports "Keychain unavailable", start or unlock your desktop's
+Secret Service provider. On Debian/Ubuntu, the usual packages are
+`gnome-keyring`, `dbus-user-session`, and `libsecret-1-0`; log out and back in
+after installing them so PAM can unlock the keyring.
+
+Headless sign-in
+----------------
+
+The OAuth redirect is fixed to localhost:4180. If your browser runs on a
+different machine, use the no-tunnel manual callback mode:
+
+  dd-cli login --manual
+
+Open the printed authorization URL anywhere. The browser's final localhost
+page may fail to load; copy its complete address-bar URL and paste it at the
+hidden Callback URL prompt. It is validated and relayed only to the CLI's own
+loopback listener, without entering shell history.
+
+Alternatively, keep an SSH local-forward open from the browser machine:
+
+  ssh -N -o ExitOnForwardFailure=yes \
+    -L 4180:127.0.0.1:4180 \
+    <user>@<linux-host>
+
+On the Linux host, use a D-Bus shell if the SSH session does not already have
+DBUS_SESSION_BUS_ADDRESS. Then unlock GNOME Keyring without placing its
+password in shell history and start login:
+
+  dbus-run-session -- bash  # only when DBUS_SESSION_BUS_ADDRESS is unset
+  read -rsp "Keyring password: " dd_keyring_password; echo
+  eval "$(printf '%s' "$dd_keyring_password" | \
+    gnome-keyring-daemon --unlock --components=secrets)"
+  unset dd_keyring_password
+  dd-cli login
+
+For tunnel mode, run `dd-cli login` without `--manual`, then open the printed
+URL while the tunnel is running. Keep the D-Bus shell open for subsequent
+commands. SSH public-key authentication does not normally unlock the login
+keyring through PAM.
+
+Optional 1Password credential storage
+-------------------------------------
+
+The Linux build can use an installed 1Password CLI instead of Secret Service.
+This is opt-in; the operating-system keychain remains the default. Sign `op`
+in, select a vault explicitly, and export the same non-secret configuration
+for login and all later commands:
+
+  op signin --account <account>
+  op whoami
+  export DD_CLI_CREDENTIAL_BACKEND=1password
+  export DD_CLI_1PASSWORD_VAULT='<vault name or ID>'
+  # Optional for multiple configured accounts:
+  export DD_CLI_1PASSWORD_ACCOUNT='<account shorthand or ID>'
+  dd-cli login --manual
+
+The backend creates a Password item titled `dd-cli OAuth Tokens` on first
+successful login. DD_CLI_1PASSWORD_ITEM can override that non-secret title.
+The OAuth document goes to `op` over stdin and is stored only in the concealed
+password field; it is never placed in command arguments, environment
+variables, or temporary files. Keep `op` authenticated for subsequent dd-cli
+commands. Manual callback mode does not require an SSH tunnel.
+
+Uninstall
+---------
+
+  rm "$HOME/.local/bin/dd-cli"
+
+Removing the binary does not remove the `dd-cli` / `oauth-tokens` entry from
+your desktop keychain or the `dd-cli OAuth Tokens` item from 1Password.

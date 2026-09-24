@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Minimal read-only 1Password CLI fixture for the compiled-binary smoke test.
+set -euo pipefail
+
+case "${1:-} ${2:-}" in
+    "whoami --format=json")
+        printf '%s\n' '{"account_uuid":"fake-account"}'
+        ;;
+    "vault get")
+        printf '%s\n' '{"id":"fake-vault","name":"Smoke Test"}'
+        ;;
+    "item list")
+        printf '%s\n' '[{"id":"fake-dd-cli-item","title":"dd-cli OAuth Tokens"}]'
+        ;;
+    "item get")
+        printf '%s\n' '{"id":"fake-dd-cli-item","title":"dd-cli OAuth Tokens","fields":[{"id":"password","type":"CONCEALED","purpose":"PASSWORD","label":"password","value":"{\"access_token\":\"smoke\",\"refresh_token\":\"smoke\",\"expires_at\":4102444800}"}]}'
+        ;;
+    *)
+        echo "Unsupported fake op command" >&2
+        exit 2
+        ;;
+esac

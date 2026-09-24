@@ -1,0 +1,38 @@
+LINUX REBUILD NOTES
+===================
+
+The official release contains a pure-Python `dd_cli` package inside a
+PyInstaller archive, plus a macOS ARM64 Python runtime. The Linux rebuild
+process copies the packaged Python bytecode without modifying it, builds it
+against a matching Linux Python runtime, recreates the exact dependency
+versions listed by the release, and adds the Secret Service support needed by
+Python Keyring on Linux.
+
+Native wheels are selected for the manylinux2014 (glibc 2.17) baseline. The
+build audits every bundled ELF shared object and rejects anything requiring a
+newer glibc. The target system supplies `libgcc_s.so.1`, as required by the
+manylinux platform contract, rather than receiving the build host's copy.
+
+Linux-only runtime additions:
+
+- SecretStorage 3.5.0 (BSD-3-Clause)
+- jeepney 0.9.0 (MIT)
+- cryptography 50.0.0 (Apache-2.0 OR BSD-3-Clause)
+- cffi 2.1.0 (MIT)
+- pycparser 3.0 (BSD-3-Clause)
+
+The rebuilt binary still enforces the release's existing authentication gate,
+OAuth flow, TLS verification, MCP request construction, output sanitization,
+and ordering confirmations because those modules are unchanged.
+
+Secret Service remains the default credential backend. An opt-in 1Password
+backend implements the same Python Keyring interface by calling an installed
+`op` CLI. It is restricted to the `dd-cli` / `oauth-tokens` record and sends
+secrets only through stdin JSON. The 1Password CLI is not redistributed.
+
+The Linux runner also adds `login --manual` for remote browsers. DoorDash's
+registered localhost redirect URI is unchanged. The user pastes the browser's
+final callback URL into a hidden prompt; the adapter requires the expected
+loopback host, selected callback port and path, and matching OAuth state before
+replaying the unmodified query to the original local HTTP handler. This avoids
+an SSH tunnel without weakening PKCE or state validation.
