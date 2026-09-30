@@ -6,7 +6,17 @@ DoorDash CLI (`dd-cli`) is a terminal tool for ordering from DoorDash — search
 
 Currently supported: **macOS, Apple Silicon (M1/M2/M3/M4)** and **Linux, x86_64**.
 
-## Download
+## Quick Setup
+
+Run this one-liner to download, verify, and install the latest release:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/doordash-oss/doordash-cli/main/setup.sh | bash
+```
+
+The script auto-detects your OS and architecture, verifies the SHA256 checksum, and installs the binary to `~/.local/bin/dd-cli`.
+
+## Manual Download
 
 1. Go to the [Releases page](https://github.com/doordash-oss/doordash-cli/releases) and open the latest release.
 2. Download the asset for your platform: `dd-cli-v<version>-darwin-arm64.tar.gz` (macOS, Apple Silicon) or `dd-cli-v<version>-linux-amd64.tar.gz` (glibc-based Linux - Debian 11+, Ubuntu 20.0+, RHEL 9, Amazon Linux 2023, and similar).
@@ -43,6 +53,20 @@ shasum -a 256 dd-cli-v<version>-darwin-arm64.tar.gz
 # or, on Linux:                                                                                                                                          
 shasum -a 256 dd-cli-v<version>-linux-amd64.tar.gz   
 ```
+
+## Using with AI Agents
+
+DoorDash CLI works with Claude Code, Cursor, Codex, and other terminal-based AI agents. Copy the skill file from [`skills/dd-cli-usage/SKILL.md`](skills/dd-cli-usage/SKILL.md) to your agent's skill directory:
+
+| Agent      | Skill directory                  |
+|------------|----------------------------------|
+| Claude Code | `~/.claude/skills/dd-cli-usage/` |
+| Cursor      | `~/.cursor/skills/dd-cli-usage/` |
+| Codex       | `~/.agents/skills/dd-cli-usage/` |
+| Gemini CLI  | `~/.gemini/config/skills/dd-cli-usage/` |
+| OpenClaw    | `~/.openclaw/skills/dd-cli-usage/` |
+
+Once installed, your agent automatically knows how to use `dd-cli` — no priming needed.
 
 ## Try it
 
