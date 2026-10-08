@@ -46,10 +46,12 @@ shasum -a 256 dd-cli-v<version>-linux-amd64.tar.gz
 
 ## Try it
 
+Every command that talks to DoorDash requires an `--intent` flag: a short, plain-language statement of why you're running the command. Without it, the CLI fails with `Error: Missing option '--intent'`.
+
 ```bash
 dd-cli --help
-dd-cli search --query "ramen near me"
-dd-cli order history
+dd-cli search --query "ramen near me" --intent "Find ramen for lunch"
+dd-cli order history --intent "Check my recent orders"
 ```
 
 ## Headless Installation
