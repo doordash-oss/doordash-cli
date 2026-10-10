@@ -39,6 +39,12 @@ it or start fresh (`dd-cli cart delete --cart-uuid <id>`).
 
 ### 3. Find the store and build the cart
 
+Get `<default_address_id>` from `dd-cli --json-output address list --intent
+"..."` (see the output note under Guardrails — an account can have many saved
+addresses). The address marked as default isn't necessarily where the person
+is today: if it isn't labelled Home or Work, confirm it with them in one
+sentence before searching.
+
 ```
 dd-cli search -q "chicken nuggets" --address-id <default_address_id> --limit 5 --intent "..."
 dd-cli menu --store-id <store_id> --intent "..."
@@ -104,7 +110,19 @@ don't declare success straight off `submit`'s return.
 - **Don't over-fetch.** For a single obvious item, one `search` +
   one `menu` call is normally enough — no need to explore multiple
   restaurants unless the request is ambiguous ("get me some nuggets" with no
-  restaurant named and multiple nearby options).
+  restaurant named and multiple nearby options). If answering would take
+  cart-by-cart probing across more than a few stores, or the CLI can't
+  express the constraint (a delivery-by time, dietary needs, a price cap),
+  stop: report the candidates you have, say what you couldn't check, and ask
+  before continuing.
+- **Keep large output out of the conversation.** `menu` responses (and an
+  `address list` with many entries) can be very large. Write
+  `--json-output` results to a scratch file, look at the shape first
+  (`jq 'keys' file.json` — on success the result is wrapped in an envelope
+  and the parsed payload is under `structuredContent`; a failed call exits
+  non-zero and writes its error to stderr, leaving the file empty), then
+  pull out only the fields you need — never print a full menu or address
+  book into the chat.
 - **Age-restricted items** (alcohol, etc.) can't complete through agentic
   checkout — if `order submit` returns
   `error_reason=AGENTIC_RESTRICTED_ITEM_NOT_ALLOWED`, tell the person and
